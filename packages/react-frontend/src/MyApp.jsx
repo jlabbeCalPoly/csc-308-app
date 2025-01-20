@@ -7,17 +7,35 @@ function MyApp() {
   const [characters, setCharacters] = useState([]);
 
   function removeOneCharacter(index) {
+    // table to update on the frontend in the event that the deletion is successful
     const updated = characters.filter((character, i) => {
       return i !== index;
     });
-    setCharacters(updated);
+    const idToDelete = characters.at(index)["id"];
+    deleteUser(idToDelete)
+      .then((res) => {
+        if (res.status === 204) {
+          console.log("should update")
+          setCharacters(updated);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   function updateList(person) {
     postUser(person)
       .then((res) => {
         if (res.status === 201) {
-          setCharacters([...characters, res]);
+          res.json()
+            .then((json) => {
+              console.log(json);
+              setCharacters([...characters, json["user_list"]]);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         }
       })
       .catch((error) => {
@@ -41,10 +59,18 @@ function MyApp() {
     return promise;
   }
 
+  function deleteUser(id) {
+    const promise = fetch(`http://localhost:8000/users/${id}`, {
+      method: "DELETE",
+    });
+    return promise;
+  }
+
   useEffect(() => {
     fetchUsers()
       .then((res) => res.json())
-      .then((json) => setCharacters(json["users_list"]))
+      .then((json) => {
+        setCharacters(json["users_list"])})
       .catch((error) => {
         console.log(error);
       });

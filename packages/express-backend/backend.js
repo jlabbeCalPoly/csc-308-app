@@ -83,7 +83,7 @@ app.get("/users/:name/:job", (req, res) => {
 });
 
 app.post("/users", (req, res) => {
-  const userToAdd = req.body;
+  let userToAdd = req.body;
   generateID();
 
   function generateLetters() {
@@ -111,7 +111,8 @@ app.post("/users", (req, res) => {
     let generatedID = letters.concat(digits);
     let takenID = findUserById(generatedID);
     if (takenID === undefined) {
-      userToAdd["id"] = generatedID;
+      // Update the original info to include the ID
+      userToAdd = { ["id"]: generatedID, ...userToAdd };
       let result = addUser(userToAdd);
       result = { user_list: result };
       res.status(201).send(result);
@@ -121,15 +122,16 @@ app.post("/users", (req, res) => {
   }
 });
 
-app.delete("/users", (req, res) => {
-  const id = req.body["id"];
+app.delete("/users/:id", (req, res) => {
+  //  const id = req.body["id"];
+  const id = req.params["id"];
   let result = findUserById(id);
   if (result != undefined) {
     const index = users["users_list"].indexOf(result);
     users["users_list"].splice(index, 1); // Format of splice: (starting index of deletion, how many items to delete)
-    res.send();
+    res.status(204).send();
   } else {
-    res.status(404).send("User id not found");
+    res.status(404).send("Resource not found");
   }
 });
 
