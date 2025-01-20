@@ -112,8 +112,9 @@ app.post("/users", (req, res) => {
     let takenID = findUserById(generatedID);
     if (takenID === undefined) {
       userToAdd["id"] = generatedID;
-      addUser(userToAdd);
-      res.status(201).send("Successfully inserted");
+      let result = addUser(userToAdd);
+      result = { user_list: result };
+      res.status(201).send(result);
     } else {
       generateID();
     }
