@@ -45,7 +45,7 @@ const addUser = (user) => {
   return user;
 };
 
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
 app.get("/users", (req, res) => {
@@ -84,8 +84,40 @@ app.get("/users/:name/:job", (req, res) => {
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.status(201).send("Successfully inserted");
+  generateID();
+
+  function generateLetters() {
+    const letterOptions = "abcdefghijklmnopqrstuvwxyz";
+    let letters = "";
+    for (let i = 0; i < 3; i++) {
+      letters += letterOptions.charAt(
+        Math.floor(Math.random() * letterOptions.length)
+      );
+    }
+    return letters;
+  }
+  function generateDigits() {
+    let digits = "";
+    for (let i = 0; i < 3; i++) {
+      digits += Math.round(Math.random() * 9).toString(10);
+    }
+    return digits;
+  }
+  // ID format: 3 letters followed by 3 digits
+  function generateID() {
+    let letters = generateLetters();
+    let digits = generateDigits();
+
+    let generatedID = letters.concat(digits);
+    let takenID = findUserById(generatedID);
+    if (takenID === undefined) {
+      userToAdd["id"] = generatedID;
+      addUser(userToAdd);
+      res.status(201).send("Successfully inserted");
+    } else {
+      generateID();
+    }
+  }
 });
 
 app.delete("/users", (req, res) => {
