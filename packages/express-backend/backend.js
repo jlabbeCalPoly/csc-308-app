@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const port = 8000;
@@ -34,15 +35,17 @@ const users = {
 const findUserByName = (name) => {
   return users["users_list"].filter((user) => user["name"] === name);
 };
-
+const findUserByJob = (job, list) => {
+  return users["users_list"].filter((list) => list["job"] === job);
+};
 const findUserById = (id) =>
   users["users_list"].find((user) => user["id"] === id);
-
 const addUser = (user) => {
   users["users_list"].push(user);
   return user;
 };
 
+app.use(cors())
 app.use(express.json());
 
 app.get("/users", (req, res) => {
@@ -63,6 +66,19 @@ app.get("/users/:id", (req, res) => {
     res.status(404).send("Resource not found");
   } else {
     res.send(result);
+  }
+});
+
+app.get("/users/:name/:job", (req, res) => {
+  const name = req.params["name"];
+  const job = req.params["job"];
+  if (name != undefined && job != undefined) {
+    let filterByName = findUserByName(name);
+    let result = findUserByJob(job, filterByName);
+    result = { user_list: result };
+    res.send(result);
+  } else {
+    res.status(404).send("Name and/or job not found");
   }
 });
 
