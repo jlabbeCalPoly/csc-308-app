@@ -111,12 +111,13 @@ app.post("/users", (req, res) => {
     let generatedID = letters.concat(digits);
     let takenID = findUserById(generatedID);
     if (takenID === undefined) {
-      // Update the original info to include the ID
+      // Update the original info to include the newly-generated ID
       userToAdd = { ["id"]: generatedID, ...userToAdd };
       let result = addUser(userToAdd);
-      result = { user_list: result };
+      result = { user_info: result };
       res.status(201).send(result);
     } else {
+      // In the event the ID is already taken, regenerate the ID
       generateID();
     }
   }

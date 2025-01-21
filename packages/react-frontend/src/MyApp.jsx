@@ -15,7 +15,6 @@ function MyApp() {
     deleteUser(idToDelete)
       .then((res) => {
         if (res.status === 204) {
-          console.log("should update")
           setCharacters(updated);
         }
       })
@@ -30,8 +29,8 @@ function MyApp() {
         if (res.status === 201) {
           res.json()
             .then((json) => {
-              console.log(json);
-              setCharacters([...characters, json["user_list"]]);
+              // update the existing list of characters with the newly-created user info
+              setCharacters([...characters, json["user_info"]]);
             })
             .catch((error) => {
               console.log(error);
