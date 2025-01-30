@@ -1,9 +1,11 @@
 import express from "express";
 import cors from "cors";
+import services from "./user-services.js";
 
 const app = express();
 const port = 8000;
-const users = {
+/*
+ const users = {
   users_list: [
     {
       id: "xyz789",
@@ -32,6 +34,7 @@ const users = {
     },
   ],
 };
+
 const findUserByName = (name) => {
   return users["users_list"].filter((user) => user["name"] === name);
 };
@@ -44,6 +47,7 @@ const addUser = (user) => {
   users["users_list"].push(user);
   return user;
 };
+*/
 
 app.use(cors());
 app.use(express.json());
@@ -51,11 +55,23 @@ app.use(express.json());
 app.get("/users", (req, res) => {
   const name = req.query.name;
   if (name != undefined) {
-    let result = findUserByName(name);
-    result = { users_list: result };
-    res.send(result);
+    services
+      .findUserByName(name)
+      .then((mongoRes) => {
+        res.json(mongoRes);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   } else {
-    res.send(users);
+    services
+      .getUsers()
+      .then((mongoRes) => {
+        res.json(mongoRes);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 });
 
@@ -82,6 +98,7 @@ app.get("/users/:name/:job", (req, res) => {
   }
 });
 
+/*
 app.post("/users", (req, res) => {
   let userToAdd = req.body;
   generateID();
@@ -121,6 +138,18 @@ app.post("/users", (req, res) => {
       generateID();
     }
   }
+});
+*/
+app.post("/users", (req, res) => {
+  let userToAdd = req.body;
+  services
+    .addUser(userToAdd)
+    .then((mongoRes) => {
+      res.status(201).send("heyo");
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 app.delete("/users/:id", (req, res) => {
