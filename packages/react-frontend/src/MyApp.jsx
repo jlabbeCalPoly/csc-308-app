@@ -11,7 +11,7 @@ function MyApp() {
     const updated = characters.filter((character, i) => {
       return i !== index;
     });
-    const idToDelete = characters.at(index)["id"];
+    const idToDelete = characters.at(index)["_id"];
     deleteUser(idToDelete)
       .then((res) => {
         if (res.status === 204) {
@@ -27,10 +27,11 @@ function MyApp() {
     postUser(person)
       .then((res) => {
         if (res.status === 201) {
-          res.json()
+          res
+            .json()
             .then((json) => {
               // update the existing list of characters with the newly-created user info
-              setCharacters([...characters, json["user_info"]]);
+              setCharacters([...characters, json]);
             })
             .catch((error) => {
               console.log(error);
@@ -69,7 +70,8 @@ function MyApp() {
     fetchUsers()
       .then((res) => res.json())
       .then((json) => {
-        setCharacters(json["users_list"])})
+        setCharacters(json);
+      })
       .catch((error) => {
         console.log(error);
       });

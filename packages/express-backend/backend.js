@@ -54,9 +54,28 @@ app.use(express.json());
 
 app.get("/users", (req, res) => {
   const name = req.query.name;
-  if (name != undefined) {
+  const job = req.query.job;
+  if (name != undefined && job != undefined) {
+    services
+      .findUserByNameAndJob(name, job)
+      .then((mongoRes) => {
+        res.json(mongoRes);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } else if (name != undefined) {
     services
       .findUserByName(name)
+      .then((mongoRes) => {
+        res.json(mongoRes);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } else if (job != undefined) {
+    services
+      .findUserByJob(job)
       .then((mongoRes) => {
         res.json(mongoRes);
       })
@@ -74,7 +93,7 @@ app.get("/users", (req, res) => {
       });
   }
 });
-
+/*
 app.get("/users/:id", (req, res) => {
   const id = req.params["id"];
   let result = findUserById(id);
@@ -84,7 +103,25 @@ app.get("/users/:id", (req, res) => {
     res.send(result);
   }
 });
+*/
 
+app.get("/users/:id", (req, res) => {
+  const id = req.params["id"];
+  services
+    .findUserById(id)
+    .then((mongoRes) => {
+      if (mongoRes !== null) {
+        res.json(mongoRes);
+      } else {
+        res.status(404).send("Resource not found");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
+/*
 app.get("/users/:name/:job", (req, res) => {
   const name = req.params["name"];
   const job = req.params["job"];
@@ -97,6 +134,22 @@ app.get("/users/:name/:job", (req, res) => {
     res.status(404).send("Name and/or job not found");
   }
 });
+*/
+
+/*
+app.get("/users/:name/:job", (req, res) => {
+  const name = req.params["name"];
+  const job = req.params["job"];
+  if (name != undefined && job != undefined) {
+    let filterByName = findUserByName(name);
+    let result = findUserByJob(job, filterByName);
+    result = { user_list: result };
+    res.send(result);
+  } else {
+    res.status(404).send("Name and/or job not found");
+  }
+});
+*/
 
 /*
 app.post("/users", (req, res) => {
@@ -145,13 +198,13 @@ app.post("/users", (req, res) => {
   services
     .addUser(userToAdd)
     .then((mongoRes) => {
-      res.status(201).send("heyo");
+      res.status(201).json(mongoRes);
     })
     .catch((error) => {
       console.log(error);
     });
 });
-
+/*
 app.delete("/users/:id", (req, res) => {
   //  const id = req.body["id"];
   const id = req.params["id"];
@@ -163,6 +216,23 @@ app.delete("/users/:id", (req, res) => {
   } else {
     res.status(404).send("Resource not found");
   }
+});
+*/
+
+app.delete("/users/:id", (req, res) => {
+  const id = req.params["id"];
+  services
+    .findUserAndDelete(id)
+    .then((mongoRes) => {
+      if (mongoRes !== null) {
+        res.status(204).send();
+      } else {
+        res.status(404).send("Resource not found");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 app.listen(port, () => {
